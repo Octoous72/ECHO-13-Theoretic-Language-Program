@@ -82,5 +82,29 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist/
-
-          
+      - name: Close Stale Issues
+        uses: actions/stale@v10.2.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-label: stale
+          stale-pr-label: stale
+          operations-per-run: 30
+          remove-stale-when-updated: true
+          exempt-issue-labels: wontfix,pinned
+          exempt-pr-labels: wontfix,pinned
+          close-issue-reason: completed
+          delete-branch: false
+          stale-issue-message: This issue is stale
+          stale-pr-message: This PR is stale
+          debug-only: false
+          enable-statistics: true
+          exempt-all-milestones: false
+          exempt-draft-pr: true
+          include-only-assigned: false
+          ignore-updates: false
+          ascending: false
+          only-issue-types: issues
+          labels-to-add-when-unstale: ''
+          labels-to-remove-when-stale: ''
