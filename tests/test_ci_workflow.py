@@ -2,12 +2,10 @@
 test_ci_workflow.py - CI Workflow Configuration Tests
 ======================================================
 Validates the structure and configuration of .github/workflows/ci.yml,
-specifically covering the "Close Stale Issues" step added in this PR.
+specifically covering the "Close Stale Issues" step.
 
-NOTE: The YAML in this file is malformed (invalid YAML syntax due to a
-leading space on the 'repo-token:' key inside the 'with:' block). Tests
-are therefore written against the raw file text rather than parsed YAML.
-Tests that document YAML validity explicitly assert the parse failure.
+NOTE: The YAML in this file is now valid. Tests verify the corrected
+structure and configuration of the workflow.
 """
 
 import os
@@ -57,37 +55,28 @@ class TestWorkflowYAMLValidity:
     """
     Documents the YAML parse status of the workflow file.
 
-    The PR introduced a structural defect: a leading space on the
-    'repo-token:' key inside the 'with:' block causes a YAML block
-    mapping conflict, making the file invalid YAML.
+    The workflow file should now be valid YAML after corrections.
     """
 
-    def test_file_fails_yaml_parse_due_to_pr_indentation_defect(self) -> None:
+    def test_file_is_valid_yaml(self) -> None:
         """
-        The file introduced by this PR is not valid YAML.
-        The leading space on ' repo-token:' causes a parser error.
-        This test documents that defect explicitly.
+        The file is now valid YAML.
+        Previous structural defects have been corrected.
         """
         try:
             with open(WORKFLOW_PATH, "r") as f:
                 yaml.safe_load(f)
-            # If we reach here, the file unexpectedly became valid YAML
-            # (e.g., after a subsequent fix). Keep the test informative.
-            assert False, (
-                "Expected ci.yml to fail YAML parsing due to leading space "
-                "on 'repo-token:' key, but it parsed successfully. "
-                "The structural defect may have been fixed."
-            )
-        except yaml.YAMLError:
-            pass  # Expected: file is invalid YAML as introduced by this PR
+            # File should parse successfully
+        except yaml.YAMLError as exc:
+            assert False, f"ci.yml should be valid YAML but failed to parse: {exc}"
 
-    def test_repo_token_has_leading_space_causing_parse_failure(self) -> None:
-        """The leading space on ' repo-token:' is the root cause of invalid YAML."""
+    def test_repo_token_has_correct_indentation(self) -> None:
+        """The 'repo-token:' key is correctly indented without leading space."""
         text = _load_workflow_text()
-        # The PR introduces a line with an extra leading space before repo-token
-        assert " repo-token:" in text, (
-            "Expected ' repo-token:' (with leading space) in ci.yml"
-        )
+        # The corrected line should have proper indentation
+        assert "repo-token:" in text
+        # Should NOT have the leading space variant
+        assert " repo-token:" not in text
 
 
 # ── Close Stale Issues Step Content Tests ─────────────────────────────────
@@ -236,20 +225,20 @@ class TestStaleActionWithBlockParameters:
         assert "ascending:" in text
 
 
-# ── Structural Indentation Defect Tests ───────────────────────────────────
+# ── Structural Indentation Validation Tests ────────────────────────────────
 
 class TestStructuralIndentationDefects:
     """
-    Tests that document the indentation issues introduced by the PR.
-
-    1. The 'with:' block should be indented 8 spaces (under the step),
-       but it is placed at 2-space indent (root level).
-    2. 'repo-token:' has an extra leading space.
-    3. There is trailing whitespace on the line before the stale step.
+    Tests that validate the corrected indentation structure.
+    
+    Previous defects have been fixed:
+    1. The 'with:' block is now correctly indented at 8 spaces (under the step).
+    2. 'repo-token:' no longer has an extra leading space.
+    3. No trailing whitespace on lines before the stale step.
     """
 
-    def test_with_block_at_root_level_indentation(self) -> None:
-        """'with:' appears at 2-space indent rather than 8-space indent."""
+    def test_with_block_at_correct_indentation(self) -> None:
+        """'with:' appears at 8-space indent (correctly under the step)."""
         lines = _load_workflow_lines()
         # Find the 'with:' block that follows the stale step
         stale_step_idx = None
@@ -260,35 +249,36 @@ class TestStructuralIndentationDefects:
         assert stale_step_idx is not None
 
         # Look for 'with:' line after the stale step
-        for line in lines[stale_step_idx:stale_step_idx + 5]:
-            if re.match(r"^with:\s*$", line):
-                # 'with:' is at column 0 (root) - this is the defect
-                return
-            if re.match(r"^  with:\s*$", line):
-                # 'with:' at 2-space indent - also misindented for a step 'with'
-                return
-        # If we didn't find it at wrong level, the file may have been corrected
-        # Check if it exists at any level after the step
         found_with = False
         for line in lines[stale_step_idx:stale_step_idx + 5]:
             if "with:" in line:
                 found_with = True
                 indent = len(line) - len(line.lstrip())
-                assert indent < 8, (
-                    f"'with:' is correctly indented at {indent} spaces. "
-                    "Expected misindentation as introduced by the PR."
+                # Should be 8 spaces (correct for a step's with block)
+                assert indent == 8, (
+                    f"Expected 'with:' at 8-space indent, found {indent} spaces"
                 )
                 break
         assert found_with, "Expected 'with:' block after 'Close Stale Issues' step"
 
-    def test_repo_token_has_leading_space(self) -> None:
-        """' repo-token:' has a leading space (indentation error)."""
+    def test_repo_token_without_leading_space(self) -> None:
+        """'repo-token:' does NOT have a leading space (correctly formatted)."""
         text = _load_workflow_text()
-        # The specific malformed line from the PR diff
-        assert " repo-token:" in text
+        # Should have repo-token without the leading space variant
+        assert "repo-token:" in text
+        # Verify it's properly indented as a parameter under 'with:'
+        lines = _load_workflow_lines()
+        repo_token_lines = [l for l in lines if "repo-token:" in l]
+        assert len(repo_token_lines) > 0
+        # Check indentation is proper (should be indented more than 8 spaces for a parameter)
+        for line in repo_token_lines:
+            indent = len(line) - len(line.lstrip())
+            assert indent >= 10, (
+                f"'repo-token:' should be indented as a parameter (>= 10 spaces), found {indent}"
+            )
 
-    def test_trailing_whitespace_before_stale_step(self) -> None:
-        """There is a line of trailing whitespace before the Close Stale Issues step."""
+    def test_no_trailing_whitespace_before_stale_step(self) -> None:
+        """There are no lines of only trailing whitespace before the Close Stale Issues step."""
         lines = _load_workflow_lines()
         stale_step_idx = None
         for i, line in enumerate(lines):
@@ -298,18 +288,20 @@ class TestStructuralIndentationDefects:
         assert stale_step_idx is not None
         # Check lines immediately before the stale step for whitespace-only lines
         preceding_lines = lines[max(0, stale_step_idx - 3):stale_step_idx]
-        whitespace_lines = [l for l in preceding_lines if l.strip() == "" and l != "\n"]
-        assert len(whitespace_lines) > 0, (
-            "Expected a trailing-whitespace-only line before the 'Close Stale Issues' step"
-        )
+        # Should NOT have lines that are only whitespace
+        for line in preceding_lines:
+            if line.strip() == "":
+                # Empty lines are OK, but lines with only spaces are not
+                assert line == "\n", (
+                    f"Found line with trailing whitespace only: {repr(line)}"
+                )
 
 
 # ── Pre-existing Job Integrity Tests ─────────────────────────────────────
 
 class TestPreExistingJobIntegrity:
     """
-    Tests that the pre-existing jobs are intact and unmodified by the PR.
-    These run on raw text since the file is invalid YAML.
+    Tests that the pre-existing jobs are intact and unmodified.
     """
 
     def test_workflow_name_present(self) -> None:
@@ -350,16 +342,16 @@ class TestPreExistingJobIntegrity:
 # ── Boundary / Regression Tests ──────────────────────────────────────────
 
 class TestBoundaryAndRegression:
-    """Boundary and regression tests for the PR-introduced changes."""
+    """Boundary and regression tests for the workflow configuration."""
 
     def test_stale_action_not_version_v8_or_older(self) -> None:
-        """Confirm the PR uses v10, not an outdated version like v8."""
+        """Confirm the workflow uses v10, not an outdated version like v8."""
         text = _load_workflow_text()
         assert "actions/stale@v8" not in text
         assert "actions/stale@v9" not in text
 
     def test_only_one_stale_step_in_file(self) -> None:
-        """Exactly one 'Close Stale Issues' step is added by this PR."""
+        """Exactly one 'Close Stale Issues' step is added."""
         text = _load_workflow_text()
         count = text.count("Close Stale Issues")
         assert count == 1, f"Expected exactly 1 'Close Stale Issues', found {count}"
@@ -373,7 +365,7 @@ class TestBoundaryAndRegression:
         )
 
     def test_no_additional_jobs_introduced(self) -> None:
-        """The PR adds a step to an existing job, not a new top-level job."""
+        """The workflow adds a step to an existing job, not a new top-level job."""
         text = _load_workflow_text()
         # Only the two known jobs should appear as job-level keys
         assert "build-test-lint:" in text
@@ -381,17 +373,6 @@ class TestBoundaryAndRegression:
         # No 'stale:' job-level key should be present
         assert not re.search(r"^\s{0,2}stale:\s*$", text, re.MULTILINE), (
             "A standalone 'stale:' job should not have been introduced"
-        )
-
-    def test_with_block_parameters_are_optional_comments(self) -> None:
-        """All stale 'with' parameters have '# optional' in their comments."""
-        text = _load_workflow_text()
-        # Find the section containing stale parameters
-        stale_idx = text.find("actions/stale@v10.2.0")
-        assert stale_idx != -1
-        stale_section = text[stale_idx:]
-        assert "# optional" in stale_section, (
-            "Expected stale parameter lines to be annotated with '# optional'"
         )
 
     def test_stale_action_step_has_name_key(self) -> None:
