@@ -70,13 +70,23 @@ class TestWorkflowYAMLValidity:
         except yaml.YAMLError as exc:
             assert False, f"ci.yml should be valid YAML but failed to parse: {exc}"
 
-    def test_repo_token_has_correct_indentation(self) -> None:
-        """The 'repo-token:' key is correctly indented without leading space."""
-        text = _load_workflow_text()
-        # The corrected line should have proper indentation
-        assert "repo-token:" in text
-        # Should NOT have the leading space variant
-        assert " repo-token:" not in text
+    def test_repo_token_correctly_formatted(self) -> None:
+        """The 'repo-token:' key is correctly formatted without leading space defect."""
+        lines = _load_workflow_lines()
+        # Find the repo-token line specifically (not just any line containing the substring)
+        repo_token_found = False
+        for line in lines:
+            stripped = line.lstrip()
+            # Check if this line is the repo-token parameter (starts with it after indent)
+            if stripped.startswith("repo-token:"):
+                repo_token_found = True
+                # Verify the indent level (should be 10+ spaces for a parameter under 'with:' block)
+                indent = len(line) - len(stripped)
+                assert indent >= 10, (
+                    f"'repo-token:' should be indented >= 10 spaces, found {indent}"
+                )
+                break
+        assert repo_token_found, "repo-token parameter not found in workflow file"
 
 
 # ── Close Stale Issues Step Content Tests ─────────────────────────────────
@@ -261,21 +271,22 @@ class TestStructuralIndentationDefects:
                 break
         assert found_with, "Expected 'with:' block after 'Close Stale Issues' step"
 
-    def test_repo_token_without_leading_space(self) -> None:
-        """'repo-token:' does NOT have a leading space (correctly formatted)."""
-        text = _load_workflow_text()
-        # Should have repo-token without the leading space variant
-        assert "repo-token:" in text
-        # Verify it's properly indented as a parameter under 'with:'
+    def test_repo_token_parameter_indented_correctly(self) -> None:
+        """'repo-token:' parameter is correctly indented under the 'with:' block."""
         lines = _load_workflow_lines()
-        repo_token_lines = [l for l in lines if "repo-token:" in l]
-        assert len(repo_token_lines) > 0
-        # Check indentation is proper (should be indented more than 8 spaces for a parameter)
-        for line in repo_token_lines:
-            indent = len(line) - len(line.lstrip())
-            assert indent >= 10, (
-                f"'repo-token:' should be indented as a parameter (>= 10 spaces), found {indent}"
-            )
+        # Find repo-token line specifically
+        repo_token_found = False
+        for line in lines:
+            stripped = line.lstrip()
+            if stripped.startswith("repo-token:"):
+                repo_token_found = True
+                indent = len(line) - len(stripped)
+                # Should be 10+ spaces (indented under with: at 8 spaces)
+                assert indent >= 10, (
+                    f"'repo-token:' should be indented >= 10 spaces as parameter, found {indent}"
+                )
+                break
+        assert repo_token_found, "'repo-token:' parameter not found"
 
     def test_no_trailing_whitespace_before_stale_step(self) -> None:
         """There are no lines of only trailing whitespace before the Close Stale Issues step."""
