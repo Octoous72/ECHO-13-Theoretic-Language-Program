@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "echo13"
+version = "0.1.0"
+description = "ECHO-13 is a deterministic continuous-unfolding computational language based on entities, traces, relational dynamics, braids, and non-destructive Soft Overlap Compression."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Octoous72"}
+]
+keywords = ["echo13", "computational-language", "language-design"]
+
+[project.urls]
+Homepage = "https://github.com/Octoous72/ECHO-13-Theoretic-Language-Program"
+Repository = "https://github.com/Octoous72/ECHO-13-Theoretic-Language-Program"
