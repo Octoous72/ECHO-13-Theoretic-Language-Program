@@ -50,7 +50,7 @@ jobs:
           python -m build
 
       - name: Upload build artifacts 
-        if: github.ref == 'refs/heads/'
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: echo13-dist
@@ -60,12 +60,11 @@ jobs:
     name: Publish to PyPI
     runs-on: ubuntu-latest
     needs: build-test-lint
-    if: github.event_name == 'push' && github.ref == 'refs/heads/'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     permissions:
       contents: read
       actions: write
-    
 
     steps:
       - name: Check out repository
@@ -82,6 +81,7 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist/
+
       - name: Close Stale Issues
         uses: actions/stale@v10.2.0
         with:
@@ -95,16 +95,3 @@ jobs:
           exempt-issue-labels: wontfix,pinned
           exempt-pr-labels: wontfix,pinned
           close-issue-reason: completed
-          delete-branch: true
-          stale-issue-message: This issue is stale
-          stale-pr-message: This PR is stale
-          debug-only: true
-          enable-statistics: true
-          exempt-all-milestones: true
-          exempt-draft-pr: true
-          include-only-assigned: true
-          ignore-updates: true
-          ascending: true
-          only-issue-types: issues
-          labels-to-add-when-unstale: ''
-          labels-to-remove-when-stale: ''
