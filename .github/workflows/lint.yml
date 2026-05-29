@@ -1,0 +1,64 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# lint.yml — Standalone lint-only workflow
+# Runs fast and cheap: single OS, single Python version.
+# Triggers on every push and every PR so style feedback arrives immediately.
+# ──────────────────────────────────────────────────────────────────────────────
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+      - "release/*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: "Lint · Python 3.12 · ubuntu"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: lint-pip-${{ hashFiles('**/requirements*.txt', 'pyproject.toml', 'setup.cfg') }}
+          restore-keys: lint-pip-
+
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install flake8 flake8-bugbear flake8-docstrings isort black
+
+      # ── black (format check) ──────────────────────────────────────────────────
+      - name: Check formatting with black
+        run: black --check --diff .
+
+      # ── isort (import order) ──────────────────────────────────────────────────
+      - name: Check import order with isort
+        run: isort --check-only --diff .
+
+      # ── flake8 fatal errors ───────────────────────────────────────────────────
+      - name: flake8 · fatal errors
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # ── flake8 full style + complexity ────────────────────────────────────────
+      - name: flake8 · style + complexity
+        run: |
+          flake8 . \
+            --count \
+            --max-line-length=127 \
+            --max-complexity=10 \
+            --extend-select=B \
+            --statistics
