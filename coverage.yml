@@ -1,0 +1,77 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# coverage.yml — Coverage reporting via pytest-cov + Codecov
+# Runs on ubuntu-latest with a single Python version for speed.
+# Uploads an XML report to Codecov and posts a markdown summary to the job log.
+# ──────────────────────────────────────────────────────────────────────────────
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - "release/*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    name: "Coverage report · Python 3.12"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: coverage-pip-${{ hashFiles('**/requirements*.txt', 'pyproject.toml', 'setup.cfg') }}
+          restore-keys: coverage-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest pytest-cov coverage[toml]
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      # ── Run tests with branch + line coverage ─────────────────────────────────
+      - name: Run pytest with coverage
+        run: |
+          pytest \
+            --cov=. \
+            --cov-branch \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            --cov-report=lcov:coverage.lcov \
+            --tb=short \
+            -q
+
+      # ── Upload to Codecov ─────────────────────────────────────────────────────
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          flags: unittests
+          name: echo13-coverage
+          fail_ci_if_error: false   # flip to true once Codecov is fully wired up
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      # ── Markdown summary in the Actions job log ───────────────────────────────
+      - name: Post coverage summary
+        if: always()
+        run: |
+          echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          python -m coverage report --format=markdown >> $GITHUB_STEP_SUMMARY || true
+
+      # ── Enforce a minimum threshold (raise gradually) ─────────────────────────
+      - name: Enforce minimum coverage (60%)
+        run: python -m coverage report --fail-under=60
