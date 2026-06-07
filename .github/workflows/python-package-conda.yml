@@ -79,3 +79,14 @@ jobs:
             python -m pip install -r requirements-test.txt || true
             pytest -q
           fi
+
+name: echo13 channels:
+ - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pyyaml
+  - pytest
+  # other deps...
+  - pip:
+    - some-pip-only-package-if-needed
