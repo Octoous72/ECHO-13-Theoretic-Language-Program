@@ -1,5 +1,5 @@
 ---
-name: create-agent
+name: createagent
 description: "Create custom agents (.agent.md) for specialized workflows. Use when you need a subagent for a specific job, tool restrictions, or role-based behavior. Guides role definition, tool selection, and iterative refinement."
 argument-hint: "What job should this agent do?"
 user-invocable: true
@@ -12,7 +12,7 @@ Guide to creating `.agent.md` files for specialized subagents with tailored beha
 ## When to Use
 
 - **Specialized roles**: TypeScript debugger, Python test writer, code reviewer, documentation generator
-- **Tool restrictions**: Read-only research agent, terminal-only DevOps agent
+- **Tool restrictions**: read-only, terminal-only DevOps agent
 - **Workflow orchestration**: Multi-step implementations with coordinated file changes
 - **Domain expertise**: Agents focused on specific languages, frameworks, or patterns
 
