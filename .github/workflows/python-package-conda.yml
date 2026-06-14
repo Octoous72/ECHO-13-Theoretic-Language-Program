@@ -17,8 +17,13 @@ jobs:
       max-parallel: 5
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
-
-    steps:
+ 
+ jobs:
+   my-job:
+     permissions:
+       contents: read
+       pull-requests: write
+     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Conda
