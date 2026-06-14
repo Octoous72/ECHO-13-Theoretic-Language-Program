@@ -1,81 +1,52 @@
 name: Python Package using Conda
+
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - develop/*
   pull_request:
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
-  build:
-    name: Build and test (Conda)
+  build-linux:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 5
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+ 
+ jobs:
+   my-job:
+     permissions:
+       contents: read
+     steps:
+      - uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Cache conda packages and pip cache
-        uses: actions/cache@v4
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v4
         with:
-          path: |
-            ~/.conda/pkgs
-            ~/.conda/envs
-            ~/.cache/pip
-          key: ${{ runner.os }}-conda-${{ hashFiles('environment.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-conda-
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
 
-      - name: Install Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Install dependencies
+        shell: bash -l {0}
+        run: |
+          conda env update --file environment.yml --name base
+
+      - name: Lint with flake8
+        shell: bash -l {0}
+        run: |
+          flake8 .
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6.4.0
         with:
-          miniconda-version: 'latest'
-          auto-activate-base: false
+          node-version: '18.x'
+          check-latest: true
 
-      - name: Create or update conda environment from environment.yml
+      - name: Test with pytest
         shell: bash -l {0}
-        run: |
-          if [ -f environment.yml ]; then
-            # Try to update an existing env (works if env exists or environment.yml names base)
-            # If update fails, attempt to create the environment.
-            conda env update --file environment.yml --prune || conda env create --file environment.yml
-          else
-            echo "No environment.yml found; skipping conda env creation. Ensure test deps are available."
-          fi
-
-      - name: Show conda info and available envs (debug)
-        shell: bash -l {0}
-        run: |
-          conda --version
-          conda info --envs || true
-          conda list || true
-
-      - name: Activate conda env and run tests
-        shell: bash -l {0}
-        run: |
-          # Determine environment name from environment.yml if present, otherwise default to 'base'
-          ENV_NAME="base"
-          if [ -f environment.yml ]; then
-            # Parse a 'name: <envname>' line if present
-            NAME_LINE=$(grep -E '^name:' environment.yml || true)
-            if [ -n "$NAME_LINE" ]; then
-              ENV_NAME=$(echo "$NAME_LINE" | awk '{print $2}')
-            fi
-          fi
-
-          # Try to activate the detected env; fall back to base if activation fails
-          conda activate "${ENV_NAME}" || conda activate base || true
-
-          # Ensure test wrapper is executable and run it
-          if [ -f ./scripts/test.sh ]; then
-            chmod +x ./scripts/test.sh
-            ./scripts/test.sh
-          else
-            echo "scripts/test.sh not found; running pytest directly"
-            python -m pip install --upgrade pip || true
-            python -m pip install -r requirements-test.txt || true
-            pytest -q
-          fi
+        run: pytest
