@@ -30,12 +30,11 @@ jobs:
           pushd .
           popd
 
-      - name: Run Azure Functions Action
-        id: fa
+      - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-          scm-do-build-during-deployment: true
-          enable-oryx-build: true
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: $.       {{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+    publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+    scm-do-build-during-deployment: true
+    enable-oryx-build: true
