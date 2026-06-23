@@ -3,3 +3,4 @@ black
 pytest
 coverage
 pip-audit
+PyYAML
