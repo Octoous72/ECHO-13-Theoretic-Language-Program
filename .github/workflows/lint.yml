@@ -1,8 +1,3 @@
-# ──────────────────────────────────────────────────────────────────────────────
-# lint.yml — Standalone lint-only workflow
-# Runs fast and cheap: single OS, single Python version.
-# Triggers on every push and every PR so style feedback arrives immediately.
-# ──────────────────────────────────────────────────────────────────────────────
 name: Lint
 
 on:
