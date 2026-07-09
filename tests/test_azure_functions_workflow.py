@@ -1,6 +1,4 @@
- coderabbitai/autofix/ade27d8
-"""
-test_azure_functions_workflow.py - Azure Functions Workflow Tests
+"""test_azure_functions_workflow.py - Azure Functions Workflow Tests
 ==================================================================
 Validates the structure and configuration of
 .github/workflows/azure-functions-app-python.yml,
@@ -176,7 +174,7 @@ class TestAzureWorkflowJobStructure:
         assert len(steps) >= 4, (
             f"Expected at least 4 steps in build-and-deploy, found "
             f"{len(steps)}. The 'Run Azure Functions Action' step may have "
-            f"been embedded inside the pip-install run: block."
+            f"been embedded inside the pip-install run block."
         )
 
 
@@ -618,46 +616,6 @@ class TestAzureWorkflowBoundaryAndRegression:
             "name declaration"
         )
         assert uses_line_idx - name_line_idx <= 5, (
-    -m py_compile        f"'uses:' appeared {uses_line_idx - name_line_idx} lines after "
+            f"'uses:' appeared {uses_line_idx - name_line_idx} lines after "
             f"'name:', expected <= 5"
-name: Deploy Python project to Azure Function App
-
-on:
-  push:
-    branches: [ "main" ]
-
-env:
-  AZURE_FUNCTIONAPP_NAME: ${{ secrets.AZURE_FUNCTIONAPP_NAME }}
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
-  PYTHON_VERSION: "3.10"
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    environment: dev
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Resolve Project Dependencies Using Pip
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-          pushd .
-          popd
-
-      - name: 'Run Azure Functions Action'
-        uses: Azure/functions-action@v1
-        with:
-        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        package: $.       {{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-    publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-    scm-do-build-during-deployment: true
-    enable-oryx-build: true
- main
+        )
