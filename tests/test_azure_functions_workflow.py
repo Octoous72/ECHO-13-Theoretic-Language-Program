@@ -1,8 +1,3 @@
-assert uses_line_idx - name_line_idx <= 5, (
-    f"'uses:' appeared {uses_line_idx - name_line_idx} lines after "
-    f"'name:', expected <= 5"
-)
-
 name: Deploy Python project to Azure Function App
 
 on:
