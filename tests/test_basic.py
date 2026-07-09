@@ -1,11 +1,11 @@
-test_basic.py - ECHO-13 Foundation Tests
+"""test_basic.py - ECHO-13 Foundation Tests
+
 Verifies core engine and graph functionality.
+"""
 
 from echo13.engine import EngineConfig, Session
 from echo13.graph import Node, SymbolGraph
 
-
- EngineConfig Tests 
 
 class TestEngineConfig:
     """Tests for EngineConfig defaults and validation."""
@@ -38,9 +38,8 @@ class TestEngineConfig:
             pass
 
 
-
 class TestNode:
-    'Tests for Node creation and identity.'
+    """Tests for Node creation and identity."""
 
     def test_defaults(self) -> None:
         node = Node(label="a")
@@ -59,9 +58,8 @@ class TestNode:
         assert a == b  # same label = same node
 
 
-
 class TestSymbolGraph:
-    'Tests for graph construction and queries.'
+    """Tests for graph construction and queries."""
 
     def _make_linear_graph(self) -> tuple[SymbolGraph, Node, Node, Node]:
         graph = SymbolGraph()
@@ -105,9 +103,8 @@ class TestSymbolGraph:
             pass
 
 
-
 class TestSession:
-    'Tests for session execution.'
+    """Tests for session execution."""
 
     def test_basic_run_completes(self) -> None:
         config = EngineConfig(recursion_depth=1, mutation_rate=0.0, seed=42)
@@ -138,6 +135,7 @@ class TestSession:
     def test_tracing_produces_events(self) -> None:
         config = EngineConfig(
             recursion_depth=1, mutation_rate=0.0, enable_tracing=True
+        )
         graph = SymbolGraph()
         a = Node(label="a", value=1.0)
         b = Node(label="b", value=2.0)
