@@ -68,7 +68,11 @@ class TestWorkflowYAMLValidity:
                 yaml.safe_load(f)
             # File should parse successfully
         except yaml.YAMLError as exc:
-            assert False, f"ci.yml should be valid YAML but failed to parse: {exc}"
+            msg = (
+                "ci.yml should be valid YAML but failed to parse: "
+                f"{exc}"
+            )
+            assert False, msg
 
     def test_repo_token_correctly_formatted(self) -> None:
         """The 'repo-token:' key is correctly formatted without leading space defect."""
@@ -127,10 +131,12 @@ class TestCloseStaleIssuesStepContent:
         assert uses_line is not None, "'actions/stale@v10.2.0' not found in file"
         # The uses line should follow the name line within a few lines
         assert uses_line > name_line, (
-            "'uses: actions/stale@v10.2.0' should come after 'name: Close Stale Issues'"
+            "'uses: actions/stale@v10.2.0' should come after "
+            "'name: Close Stale Issues'"
         )
         assert uses_line - name_line <= 3, (
-            f"Expected 'uses' within 3 lines of 'name', got {uses_line - name_line} lines apart"
+            f"Expected 'uses' within 3 lines of 'name', got "
+            f"{uses_line - name_line} lines apart"
         )
 
     def test_close_stale_issues_step_is_in_publish_section(self) -> None:
@@ -141,7 +147,8 @@ class TestCloseStaleIssuesStepContent:
         assert publish_pos != -1, "'publish:' job not found"
         assert stale_pos != -1, "'Close Stale Issues' not found"
         assert stale_pos > publish_pos, (
-            "Expected 'Close Stale Issues' to appear after 'publish:' in the file"
+            "Expected 'Close Stale Issues' to appear after 'publish:' "
+            "in the file"
         )
 
 
@@ -240,7 +247,7 @@ class TestStaleActionWithBlockParameters:
 class TestStructuralIndentationDefects:
     """
     Tests that validate the corrected indentation structure.
-    
+
     Previous defects have been fixed:
     1. The 'with:' block is now correctly indented at 8 spaces (under the step).
     2. 'repo-token:' no longer has an extra leading space.
@@ -372,7 +379,8 @@ class TestBoundaryAndRegression:
         text = _load_workflow_text()
         count = text.count("actions/stale@v10.2.0")
         assert count == 1, (
-            f"Expected exactly 1 'actions/stale@v10.2.0' reference, found {count}"
+            f"Expected exactly 1 'actions/stale@v10.2.0' reference, "
+            f"found {count}"
         )
 
     def test_no_additional_jobs_introduced(self) -> None:
@@ -382,20 +390,26 @@ class TestBoundaryAndRegression:
         assert "build-test-lint:" in text
         assert "publish:" in text
         # No 'stale:' job-level key should be present
-        assert not re.search(r"^\s{0,2}stale:\s*$", text, re.MULTILINE), (
+        assert not re.search(
+            r"^\s{0,2}stale:\s*$", text, re.MULTILINE
+        ), (
             "A standalone 'stale:' job should not have been introduced"
         )
 
     def test_stale_action_step_has_name_key(self) -> None:
         """The step defining the stale action includes a 'name:' key."""
         lines = _load_workflow_lines()
-        name_present = any("name: Close Stale Issues" in line for line in lines)
+        name_present = any(
+            "name: Close Stale Issues" in line for line in lines
+        )
         assert name_present
 
     def test_stale_action_step_has_uses_key(self) -> None:
         """The step defining the stale action includes a 'uses:' key."""
         lines = _load_workflow_lines()
-        uses_present = any("uses: actions/stale@v10.2.0" in line for line in lines)
+        uses_present = any(
+            "uses: actions/stale@v10.2.0" in line for line in lines
+        )
         assert uses_present
 
     def test_only_issue_types_parameter_present(self) -> None:
