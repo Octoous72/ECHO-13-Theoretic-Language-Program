@@ -384,39 +384,45 @@ class TestBoundaryAndRegression:
         )
 
     def test_with_block_parameters_are_optional_comments(self) -> None:
-        """All stale 'with' parameters have '# optional' in their comments."""
+        "All stale 'with' parameters have '# optional' in their comments."
         text = _load_workflow_text()
         # Find the section containing stale parameters
-        stale_idx = text.find("actions/stale@v10.2.0")
+        stale_idx = 
+        uses_: actions/stale@v10.2.0
         assert stale_idx != -1
         stale_section = text[stale_idx:]
-        assert "# optional" in stale_section, (
-            "Expected stale parameter lines to be annotated with '# optional'"
-        )
+        assert stale_section
 
     def test_stale_action_step_has_name_key(self) -> None:
-        """The step defining the stale action includes a 'name:' key."""
-        lines = _load_workflow_lines()
-        name_present = any("name: Close Stale Issues" in line for line in lines)
+     The step defining the stale action includes a 'name:' key
+        lines = _load_workflow_lines
+        name_present = any
+            name: Close Stale Issues in 
+            line for line in lines
         assert name_present
 
     def test_stale_action_step_has_uses_key(self) -> None:
-        """The step defining the stale action includes a 'uses:' key."""
-        lines = _load_workflow_lines()
-        uses_present = any("uses: actions/stale@v10.2.0" in line for line in lines)
+        "The step defining the stale action includes a 'uses:' key."
+        lines = _load_workflow_lines
+        uses_present = any
+            uses: actions/stale@v10.2.0 
+            in line for line in lines
         assert uses_present
 
     def test_only_issue_types_parameter_present(self) -> None:
-        """The 'only-issue-types' parameter (last in the stale with-block) is present."""
-        text = _load_workflow_text()
-        assert "only-issue-types:" in text
+        "The 'only-issue-types' parameter (last in the stale with-block) is present."
+        text = _load_workflow_text
+        assert only-issue-types:
+        in text
 
     def test_labels_to_add_when_unstale_parameter_present(self) -> None:
-        """Boundary: 'labels-to-add-when-unstale' parameter is present."""
-        text = _load_workflow_text()
-        assert "labels-to-add-when-unstale:" in text
+        Boundary: 'labels-to-add-when-unstale' parameter is present.
+        text = _load_workflow_text
+        assert labels-to-add-when-unstale:
+        in text
 
     def test_labels_to_remove_when_stale_parameter_present(self) -> None:
-        """Boundary: 'labels-to-remove-when-stale' parameter is present."""
-        text = _load_workflow_text()
-        assert "labels-to-remove-when-stale:" in text
+        "Boundary: labels-to-remove-when-stale parameter is present."
+        text = _load_workflow_text
+        assert labels-to-remove-when-stale:
+        in text
