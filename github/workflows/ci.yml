@@ -1,0 +1,57 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: pytest
+
+  publish:
+    needs: build-test-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install build
+      - run: python -m build
+      - name: Close Stale Issues
+        uses: actions/stale@v10.2.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-label: stale
+          stale-pr-label: stale
+          operations-per-run: 100
+          remove-stale-when-updated: true
+          exempt-issue-labels: pinned
+          exempt-pr-labels: pinned
+          close-issue-reason: completed
+          delete-branch: true
+          stale-issue-message: This issue is stale
+          stale-pr-message: This PR is stale
+          debug-only: false
+          enable-statistics: true
+          exempt-all-milestones: false
+          exempt-draft-pr: true
+          include-only-assigned: false
+          ignore-updates: false
+          ascending: false
+          only-issue-types: issues
+          labels-to-add-when-unstale: active
+          labels-to-remove-when-stale: stale
+      - uses: gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
