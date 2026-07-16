@@ -379,8 +379,8 @@ class TestBoundaryAndRegression:
         text = _load_workflow_text()
         count = text.count("actions/stale@v10.2.0")
         assert count == 1, (
-            f"Expected exactly 1 'actions/stale@v10.2.0' reference, "
-            f"found {count}"
+            f"Expected exactly 1 'actions/stale@v10.2.0' "
+            f"reference, found {count}"
         )
 
     def test_no_additional_jobs_introduced(self) -> None:
@@ -393,7 +393,8 @@ class TestBoundaryAndRegression:
         assert not re.search(
             r"^\s{0,2}stale:\s*$", text, re.MULTILINE
         ), (
-            "A standalone 'stale:' job should not have been introduced"
+            "A standalone 'stale:' job should not have been "
+            "introduced"
         )
 
     def test_stale_action_step_has_name_key(self) -> None:
