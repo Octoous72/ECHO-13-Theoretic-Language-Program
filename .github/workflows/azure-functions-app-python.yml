@@ -38,3 +38,9 @@ jobs:
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v5.4.0
+             
+              gh api \
+              --method DELETE \
+              repos/Octoous72/ECHO-13-Theoretic-Language-Program/contents/.github/workflows/azure-functions-app-python.yml \
+              -f message="Remove obsolete Azure Functions deployment workflow" \
+              -f branch="main"
