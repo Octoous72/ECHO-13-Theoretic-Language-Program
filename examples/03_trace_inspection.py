@@ -36,7 +36,8 @@ from echo13.engine import EngineConfig, Session
 from echo13.graph import Node, SymbolGraph
 
 
-# ── Graph builder ───────────────────────────────────────────────────────
+# Graph builder
+# ----------------------------------------------------------------------
 def build_branching_graph() -> SymbolGraph:
     """Return a branching graph:  α → β → δ,  α → γ"""
     graph = SymbolGraph()
@@ -58,7 +59,8 @@ def build_branching_graph() -> SymbolGraph:
     return graph
 
 
-# ── Report helpers ──────────────────────────────────────────────────────
+# Report helpers
+# ----------------------------------------------------------------------
 def print_timeline(trace: list[dict]) -> None:
     """Print every trace event on one line, indented by recursion depth."""
     print("=" * 64)
@@ -126,7 +128,8 @@ def print_pass_breakdown(trace: list[dict], num_passes: int) -> None:
     print()
 
 
-# ── JSON export ─────────────────────────────────────────────────────────
+# JSON export
+# ----------------------------------------------------------------------
 def dump_json(trace: list[dict]) -> None:
     """Write the raw trace to stdout as pretty‑printed JSON."""
     print("=" * 64)
@@ -136,7 +139,8 @@ def dump_json(trace: list[dict]) -> None:
     print()
 
 
-# ── CLI ────────────────────────────────────────────────────────────────
+# Command-line interface
+# ----------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="ECHO‑13 trace‑inspection demo",
@@ -152,7 +156,8 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-# ── Main ───────────────────────────────────────────────────────────────
+# Main program
+# ----------------------------------------------------------------------
 def main() -> None:
     args = parse_args()
 
