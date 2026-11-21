@@ -42,7 +42,7 @@ def build_branching_graph() -> SymbolGraph:
     graph = SymbolGraph()
 
     alpha = Node(label="α", value=1.0)
-    beta  = Node(label="β", value=2.0)
+    beta = Node(label="β", value=2.0)
     gamma = Node(label="γ", value=3.0)
     delta = Node(label="δ", value=4.0)
 
@@ -66,15 +66,15 @@ def print_timeline(trace: list[dict]) -> None:
     print("=" * 64)
 
     for event in trace:
-        depth  = event.get("depth", 0)
-        kind   = event.get("kind", "?")
-        node   = event.get("node", "")
-        value  = event.get("value", "")
+        depth = event.get("depth", 0)
+        kind = event.get("kind", "?")
+        node = event.get("node", "")
+        value = event.get("value", "")
         mutated = event.get("mutated", False)
         pass_n = event.get("pass", "?")
 
         indent = "  " * depth
-        flag   = " ⚡" if mutated else ""
+        flag = " ⚡" if mutated else ""
         print(f"  pass {pass_n}  {indent}{kind:<12} {node:<4} → {value}{flag}")
 
     print()
@@ -115,11 +115,11 @@ def print_pass_breakdown(trace: list[dict], num_passes: int) -> None:
     print("  " + "-" * 28)
 
     for p in range(1, num_passes + 1):
-        events    = [e for e in trace if e.get("pass") == p]
+        events = [e for e in trace if e.get("pass") == p]
         mutations = sum(1 for e in events if e.get("mutated"))
         print(f"  {p:>6} {len(events):>8} {mutations:>10}")
 
-    total_events    = len(trace)
+    total_events = len(trace)
     total_mutations = sum(1 for e in trace if e.get("mutated"))
     print("  " + "-" * 28)
     print(f"  {'TOTAL':>6} {total_events:>8} {total_mutations:>10}")
@@ -136,7 +136,7 @@ def dump_json(trace: list[dict]) -> None:
     print()
 
 
-# ── CLI ─────────────────────────────────────────────────────────────────
+# ── CLI ────────────────────────────────────────────────────────────────
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="ECHO‑13 trace‑inspection demo",
@@ -152,7 +152,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-# ── Main ────────────────────────────────────────────────────────────────
+# ── Main ───────────────────────────────────────────────────────────────
 def main() -> None:
     args = parse_args()
 
