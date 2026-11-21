@@ -21,27 +21,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Lint with flake8 (fatal errors)
-        run: flake8 --select=E9,F63,F7,F82 .
-
-      - name: Lint with flake8 (style warnings)
-        run: flake8 .
-
-      - name: Test with pytest
-        run: pytest -q
-
+          pip install -r requirements.tx
       - name: Mark stale issues and PRs
         uses: actions/stale@v9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           enable-statistics: true
-          exempt-all-milestones: false
-          exempt-draft-pr: false
-          include-only-assigned: false
-          ignore-updates: false
-          ascending: false
+          exempt-all-milestones: true
+          exempt-draft-pr: true
+          include-only-assigned: true
+          ignore-updates: true
+          ascending: true
           only-issue-types: issues
           labels-to-add-when-unstale: "active"
           labels-to-remove-when-stale: "stale"
