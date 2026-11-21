@@ -6,7 +6,10 @@ import yaml
 
 
 WORKFLOW_PATH = (
-    Path(__file__).parent.parent / ".github" / "workflows" / "python-package.yml"
+    Path(__file__).parent.parent
+    / ".github"
+    / "workflows"
+    / "python-package.yml"
 )
 
 
